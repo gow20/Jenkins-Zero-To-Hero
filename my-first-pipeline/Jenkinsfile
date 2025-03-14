@@ -3,9 +3,12 @@ pipeline {
         docker { image 'node:16-alpine' }
     }
     stages {
-        stage('Test Node Version') {
+        stage('Install Java') {
             steps {
-                sh 'node --version'
+                script {
+                    // Install OpenJDK 11 inside the node:16-alpine container
+                    sh 'apk update && apk add openjdk11'
+                }
             }
         }
         stage('Create HelloWorld.java') {
@@ -26,7 +29,7 @@ public class HelloWorld {
         stage('Compile Java') {
             steps {
                 script {
-                    // Compile the HelloWorld.java file using the existing JDK
+                    // Compile the HelloWorld.java file using the installed JDK
                     sh 'javac HelloWorld.java'
                 }
             }
@@ -49,4 +52,3 @@ public class HelloWorld {
         }
     }
 }
-

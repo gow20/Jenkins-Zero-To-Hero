@@ -2,23 +2,13 @@ pipeline {
     agent {
         docker { 
             image 'node:16-alpine' 
-            args '--user root' // Allow Docker container to run as root for installing packages
+            args '--user root' // Allow Docker container to run as root for necessary permissions
         }
     }
     stages {
         stage('Checkout SCM') {
             steps {
                 checkout scm
-            }
-        }
-        stage('Install Java') {
-            steps {
-                script {
-                    sh '''
-                        apk update
-                        apk add openjdk11
-                    '''
-                }
             }
         }
         stage('Create HelloWorld.java') {

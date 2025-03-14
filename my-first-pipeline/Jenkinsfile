@@ -1,35 +1,42 @@
 pipeline {
     agent {
-        docker { image 'node:16-alpine' }
+        docker { 
+            image 'node:16-alpine' 
+            args '--user root' // Allow Docker container to run as root for installing packages
+        }
     }
     stages {
+        stage('Checkout SCM') {
+            steps {
+                checkout scm
+            }
+        }
         stage('Install Java') {
             steps {
                 script {
-                    // Use root permissions to install Java
-                    sh 'apk update && apk add openjdk11'
+                    sh '''
+                        apk update
+                        apk add openjdk11
+                    '''
                 }
             }
         }
         stage('Create HelloWorld.java') {
             steps {
                 script {
-                    // Create the HelloWorld.java file dynamically
-                    writeFile file: 'HelloWorld.java', text: '''
-public class HelloWorld {
-    public static void main(String[] args) {
-        // Prints "Hello, World!" to the console
-        System.out.println("Hello, World!");
-    }
-}
-'''
+                    sh '''
+                        echo "public class HelloWorld {
+                            public static void main(String[] args) {
+                                System.out.println("Hello, World!");
+                            }
+                        }" > HelloWorld.java
+                    '''
                 }
             }
         }
         stage('Compile Java') {
             steps {
                 script {
-                    // Compile the HelloWorld.java file
                     sh 'javac HelloWorld.java'
                 }
             }
@@ -37,18 +44,9 @@ public class HelloWorld {
         stage('Run Java Program') {
             steps {
                 script {
-                    // Run the compiled HelloWorld class
                     sh 'java HelloWorld'
                 }
             }
-        }
-    }
-    post {
-        success {
-            echo 'The Java program ran successfully!'
-        }
-        failure {
-            echo 'The Java program failed to run.'
         }
     }
 }
